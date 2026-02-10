@@ -35,7 +35,3 @@ discover_catalogs <- function(url, username, password) {
   cat("HTTP", resp_status(resp), "\n\n")
   cat(rawToChar(resp_body_raw(resp)), "\n")
 }
-
-args <- commandArgs(trailingOnly = TRUE)
-discover_catalogs( args[1], args[2], args[3]
-)
