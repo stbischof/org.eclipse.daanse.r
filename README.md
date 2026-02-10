@@ -12,6 +12,15 @@ install.packages(".", repos = NULL, type = "source")
 library(eclipse.daanse.xmla)
 hello("Eclipse")
 
+or
+
+discover_catalogs(
+  "http://foo.bar.buzz:8080/xmla",
+  "user",
+  "secret"
+)
+
+
 ### Run test
 setwd("~/git/daanse/org.eclipse.daanse.r")
 testthat::test_dir("tests/testthat")
