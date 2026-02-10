@@ -1,0 +1,13 @@
+Package: eclipse.daanse.xmla
+Title: XMLA Client for R
+Version: 0.1.0
+Authors@R:
+    person("Stefan", "Bischof", role = c("aut", "cre"),
+           email = "stbischof@bipolis.org")
+Description: XMLA (XML for Analysis) SOAP client for R.
+License: file LICENSE
+Encoding: UTF-8
+Imports:
+    httr2,
+    xml2
+RoxygenNote: 7.3.3
