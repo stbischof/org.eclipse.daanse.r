@@ -14,6 +14,10 @@ hello("Eclipse")
 
 or
 
+library(pkgload)
+pkgload::load_all()
+setwd("~/git/daanse/org.eclipse.daanse.r")
+roxygen2::roxygenise()
 discover_catalogs(
   "http://foo.bar.buzz:8080/xmla",
   "user",
