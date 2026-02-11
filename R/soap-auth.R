@@ -40,7 +40,5 @@ BasicAuth <- R6::R6Class(
       httr2::req_headers(req, Authorization = paste("Basic", encoded))
     }
   ),
-  private = list(
-    username = NULL,
-    password = NULL
-  ))
+  private = list(username = NULL, password = NULL)
+)
