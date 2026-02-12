@@ -26,6 +26,14 @@ testthat::test_that("BasicAuth adds Authorization header", {
   reqWithAuth <- auth$apply_auth(req)
   
   expect_true(!is.null(reqWithAuth$headers))
-  
-  
+})
+
+testthat::test_that("NoAuth soap_header_nodes returns NULL", {
+  auth <- NoAuth$new()
+  testthat::expect_null(auth$soap_header_nodes())
+})
+
+testthat::test_that("BasicAuth soap_header_nodes returns NULL", {
+  auth <- BasicAuth$new("admin", "secret")
+  testthat::expect_null(auth$soap_header_nodes())
 })
