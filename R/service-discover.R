@@ -18,6 +18,8 @@ xmla_discover <- function(conn,
     properties[["Format"]] <- "Tabular"
   }
   xml <- conn$discover(request_type, restrictions, properties)
+  if (is.null(xml))
+    return(data.frame())
   rows <- xml_get_discover_rows(xml)
   xml_nodes_to_df(rows)
 }
@@ -38,5 +40,7 @@ xmla_discover_raw <- function(conn,
     properties[["Format"]] <- "Tabular"
   }
   xml <- conn$discover(request_type, restrictions, properties)
+  if (is.null(xml))
+    return(list())
   xml_get_discover_rows(xml)
 }

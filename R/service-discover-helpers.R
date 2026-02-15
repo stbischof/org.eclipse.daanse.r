@@ -25,9 +25,9 @@ discover_catalogs <- function(conn) {
 #' @return A list of \code{Cube} objects.
 #' @export
 discover_cubes <- function(conn, catalog) {
-  rows <- xmla_discover_raw(conn,
-                            "MDSCHEMA_CUBES",
-                            restrictions = list(CATALOG_NAME = catalog))
+  restrictions <- list(CATALOG_NAME = catalog)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_CUBES", restrictions, properties)
   lapply(rows, Cube_from_node)
 }
 
@@ -39,11 +39,9 @@ discover_cubes <- function(conn, catalog) {
 #' @return A list of \code{Dimension} objects.
 #' @export
 discover_dimensions <- function(conn, catalog, cube) {
-  rows <- xmla_discover_raw(
-    conn,
-    "MDSCHEMA_DIMENSIONS",
-    restrictions = list(CATALOG_NAME = catalog, CUBE_NAME = cube)
-  )
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_DIMENSIONS", restrictions, properties)
   lapply(rows, Dimension_from_node)
 }
 
@@ -56,11 +54,12 @@ discover_dimensions <- function(conn, catalog, cube) {
 #' @return A list of \code{Hierarchy} objects.
 #' @export
 discover_hierarchies <- function(conn, catalog, cube, dimension = NULL) {
-  restr <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
   if (!is.null(dimension)) {
-    restr[["DIMENSION_UNIQUE_NAME"]] <- dimension
+    restrictions[["DIMENSION_UNIQUE_NAME"]] <- dimension
   }
-  rows <- xmla_discover_raw(conn, "MDSCHEMA_HIERARCHIES", restrictions = restr)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_HIERARCHIES", restrictions, properties)
   lapply(rows, Hierarchy_from_node)
 }
 
@@ -73,11 +72,12 @@ discover_hierarchies <- function(conn, catalog, cube, dimension = NULL) {
 #' @return A list of \code{Level} objects.
 #' @export
 discover_levels <- function(conn, catalog, cube, hierarchy = NULL) {
-  restr <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
   if (!is.null(hierarchy)) {
-    restr[["HIERARCHY_UNIQUE_NAME"]] <- hierarchy
+    restrictions[["HIERARCHY_UNIQUE_NAME"]] <- hierarchy
   }
-  rows <- xmla_discover_raw(conn, "MDSCHEMA_LEVELS", restrictions = restr)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_LEVELS", restrictions, properties)
   lapply(rows, Level_from_node)
 }
 
@@ -89,10 +89,23 @@ discover_levels <- function(conn, catalog, cube, hierarchy = NULL) {
 #' @return A list of \code{Measure} objects.
 #' @export
 discover_measures <- function(conn, catalog, cube) {
-  rows <- xmla_discover_raw(conn,
-                            "MDSCHEMA_MEASURES",
-                            restrictions = list(CATALOG_NAME = catalog, CUBE_NAME = cube))
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_MEASURES", restrictions, properties)
   lapply(rows, Measure_from_node)
+}
+
+#' Discover measure groups
+#'
+#' @param conn A \code{Connection} object.
+#' @param catalog Catalog name.
+#' @param cube Cube name.
+#' @return A data.frame with measure group information.
+#' @export
+discover_measure_groups <- function(conn, catalog, cube) {
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  properties <- list(Catalog = catalog)
+  xmla_discover(conn, "MDSCHEMA_MEASUREGROUPS", restrictions, properties)
 }
 
 #' Discover members
@@ -111,17 +124,18 @@ discover_members <- function(conn,
                              dimension = NULL,
                              hierarchy = NULL,
                              level = NULL) {
-  restr <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
   if (!is.null(dimension)) {
-    restr[["DIMENSION_UNIQUE_NAME"]] <- dimension
+    restrictions[["DIMENSION_UNIQUE_NAME"]] <- dimension
   }
   if (!is.null(hierarchy)) {
-    restr[["HIERARCHY_UNIQUE_NAME"]] <- hierarchy
+    restrictions[["HIERARCHY_UNIQUE_NAME"]] <- hierarchy
   }
   if (!is.null(level)) {
-    restr[["LEVEL_UNIQUE_NAME"]] <- level
+    restrictions[["LEVEL_UNIQUE_NAME"]] <- level
   }
-  rows <- xmla_discover_raw(conn, "MDSCHEMA_MEMBERS", restrictions = restr)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_MEMBERS", restrictions, properties)
   lapply(rows, Member_from_node)
 }
 
@@ -133,9 +147,9 @@ discover_members <- function(conn,
 #' @return A list of \code{MdSet} objects.
 #' @export
 discover_sets <- function(conn, catalog, cube) {
-  rows <- xmla_discover_raw(conn,
-                            "MDSCHEMA_SETS",
-                            restrictions = list(CATALOG_NAME = catalog, CUBE_NAME = cube))
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_SETS", restrictions, properties)
   lapply(rows, MdSet_from_node)
 }
 
@@ -147,10 +161,8 @@ discover_sets <- function(conn, catalog, cube) {
 #' @return A list of \code{Property} objects.
 #' @export
 discover_properties <- function(conn, catalog, cube) {
-  rows <- xmla_discover_raw(
-    conn,
-    "MDSCHEMA_PROPERTIES",
-    restrictions = list(CATALOG_NAME = catalog, CUBE_NAME = cube)
-  )
+  restrictions <- list(CATALOG_NAME = catalog, CUBE_NAME = cube)
+  properties <- list(Catalog = catalog)
+  rows <- xmla_discover_raw(conn, "MDSCHEMA_PROPERTIES", restrictions, properties)
   lapply(rows, Property_from_node)
 }

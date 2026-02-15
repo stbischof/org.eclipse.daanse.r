@@ -52,7 +52,7 @@ xml_node_to_list <- function(node) {
   children <- xml2::xml_children(node)
   if (length(children) == 0)
     return(list())
-  nms <- xml2::xml_name(children)
+  nms <- xmla_decode_names(xml2::xml_name(children))
   vals <- xml2::xml_text(children)
   stats::setNames(as.list(vals), nms)
 }

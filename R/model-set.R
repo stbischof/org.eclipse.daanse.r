@@ -6,22 +6,22 @@ MdSet <- R6::R6Class(
   public = list(
     #' @field catalog_name Catalog name.
     catalog_name = NULL,
-
+    
     #' @field cube_name Cube name.
     cube_name = NULL,
-
+    
     #' @field set_name Set name.
     set_name = NULL,
-
+    
     #' @field set_caption Set caption.
     set_caption = NULL,
-
+    
     #' @field scope Scope.
     scope = NULL,
-
+    
     #' @field description Description.
     description = NULL,
-
+    
     #' @description Create an MdSet.
     #' @param catalog_name Catalog.
     #' @param cube_name Cube.
@@ -42,7 +42,7 @@ MdSet <- R6::R6Class(
       self$scope <- scope
       self$description <- description
     },
-
+    
     #' @description Print method.
     #' @param ... Ignored.
     print = function(...) {

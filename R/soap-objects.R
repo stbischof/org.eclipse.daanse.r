@@ -281,10 +281,7 @@ send_soap_request <- function(url, soap_xml, auth) {
       raw(0)
   )
   if (length(resp_raw) == 0) {
-    stop("XMLA server returned empty response (HTTP ",
-         status,
-         ")",
-         call. = FALSE)
+    return(NULL)
   }
   
   body <- rawToChar(resp_raw)

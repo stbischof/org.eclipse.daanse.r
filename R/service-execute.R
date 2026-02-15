@@ -18,7 +18,16 @@ xmla_execute <- function(conn,
   if (!is.null(catalog)) {
     props[["Catalog"]] <- catalog
   }
+  if (format == "Multidimensional") {
+    props[["AxisFormat"]] <- "TupleFormat"
+  }
   xml <- conn$execute(statement, properties = props)
+  
+  if (is.null(xml)) {
+    if (format == "Tabular")
+      return(data.frame())
+    return(ExecuteResult$new())
+  }
   
   if (format == "Tabular") {
     parse_tabular_response(xml)
@@ -33,9 +42,7 @@ xmla_execute <- function(conn,
 #' @keywords internal
 parse_tabular_response <- function(xml) {
   rows <- xml_get_discover_rows(xml)
-  df <- xml_nodes_to_df(rows)
-  names(df) <- xmla_decode_names(names(df))
-  df
+  xml_nodes_to_df(rows)
 }
 
 #' Parse a multidimensional Execute response
@@ -73,13 +80,34 @@ parse_multidimensional_response <- function(xml) {
 parse_axis <- function(axis_node) {
   axis_name <- xml2::xml_attr(axis_node, "name")
   
-  tuple_nodes <- xml2::xml_find_all(axis_node, ".//*[local-name()='Tuple']")
-  tuples <- lapply(tuple_nodes, function(tnode) {
-    member_nodes <- xml2::xml_find_all(tnode, ".//*[local-name()='Member']")
-    lapply(member_nodes, function(mnode) {
-      xml_node_to_list(mnode)
+  tuples_node <- NULL
+  for (ch in xml2::xml_children(axis_node)) {
+    if (xml2::xml_name(ch) == "Tuples") {
+      tuples_node <- ch
+      break
+    }
+  }
+  
+  tuples <- list()
+  if (!is.null(tuples_node)) {
+    tuple_nodes <- xml2::xml_children(tuples_node)
+    tuple_nodes <- tuple_nodes[xml2::xml_name(tuple_nodes) == "Tuple"]
+    tuples <- lapply(tuple_nodes, function(tuple_node) {
+      member_nodes <- xml2::xml_children(tuple_node)
+      member_nodes <- member_nodes[xml2::xml_name(member_nodes) == "Member"]
+      lapply(member_nodes, function(member_node) {
+        hierarchy <- xml2::xml_attr(member_node, "Hierarchy")
+        children <- xml2::xml_children(member_node)
+        member_info <- list()
+        for (child in children) {
+          nm <- xml2::xml_name(child)
+          member_info[[nm]] <- xml2::xml_text(child)
+        }
+        member_info[["Hierarchy"]] <- hierarchy
+        member_info
+      })
     })
-  })
+  }
   
   Axis$new(name = axis_name, tuples = tuples)
 }
@@ -89,12 +117,36 @@ parse_axis <- function(axis_node) {
 #' @return A CellData object.
 #' @keywords internal
 parse_cell_data <- function(celldata_node) {
-  cell_nodes <- xml2::xml_find_all(celldata_node, ".//*[local-name()='Cell']")
-  cells <- lapply(cell_nodes, function(cnode) {
-    ordinal <- xml2::xml_attr(cnode, "CellOrdinal")
-    info <- xml_node_to_list(cnode)
-    info[["CellOrdinal"]] <- ordinal
-    info
+  cell_nodes <- xml2::xml_children(celldata_node)
+  cell_nodes <- cell_nodes[xml2::xml_name(cell_nodes) == "Cell"]
+  
+  cells <- lapply(cell_nodes, function(cell_node) {
+    ordinal <- as.integer(xml2::xml_attr(cell_node, "CellOrdinal"))
+    children <- xml2::xml_children(cell_node)
+    cell_info <- list(ordinal = ordinal)
+    for (child in children) {
+      nm <- xml2::xml_name(child)
+      val <- xml2::xml_text(child)
+      if (nm == "Value") {
+        xsi_type <- xml2::xml_attr(child, "type")
+        if (!is.na(xsi_type) &&
+            grepl("int|long|double|float|decimal",
+                  xsi_type,
+                  ignore.case = TRUE)) {
+          cell_info[["value"]] <- as.numeric(val)
+        } else {
+          cell_info[["value"]] <- val
+        }
+      } else if (nm == "FmtValue") {
+        cell_info[["formattedValue"]] <- val
+      } else if (nm == "FormatString") {
+        cell_info[["formatString"]] <- val
+      } else {
+        cell_info[[nm]] <- val
+      }
+    }
+    cell_info
   })
+  
   CellData$new(cells = cells)
 }

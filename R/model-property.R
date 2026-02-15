@@ -6,25 +6,25 @@ Property <- R6::R6Class(
   public = list(
     #' @field catalog_name Catalog name.
     catalog_name = NULL,
-
+    
     #' @field property_name Property name.
     property_name = NULL,
-
+    
     #' @field property_description Property description.
     property_description = NULL,
-
+    
     #' @field property_type Property type.
     property_type = NULL,
-
+    
     #' @field property_access_type Access type.
     property_access_type = NULL,
-
+    
     #' @field is_required Whether property is required.
     is_required = NULL,
-
+    
     #' @field value Current value.
     value = NULL,
-
+    
     #' @description Create a Property.
     #' @param catalog_name Catalog.
     #' @param property_name Name.
@@ -48,7 +48,7 @@ Property <- R6::R6Class(
       self$is_required <- is_required
       self$value <- value
     },
-
+    
     #' @description Print method.
     #' @param ... Ignored.
     print = function(...) {
